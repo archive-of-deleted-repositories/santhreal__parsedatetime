@@ -70,6 +70,13 @@ class test(unittest.TestCase):
             self.cal.parse('654321 w', start), (start, pdtContext()))
         self.assertExpectedResult(
             self.cal.parse('3700000 d', start), (start, pdtContext()))
+        # Modifier path ("next N weeks/days") must degrade the same way
+        self.assertExpectedResult(
+            self.cal.parse('next 1000000 weeks', start), (start, pdtContext()))
+        self.assertExpectedResult(
+            self.cal.parse('next 100000000 days', start), (start, pdtContext()))
+        self.assertExpectedResult(
+            self.cal.parse('next 1000000000000000000 weeks', start), (start, pdtContext()))
 
 
 if __name__ == "__main__":

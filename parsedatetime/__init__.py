@@ -926,37 +926,45 @@ class Calendar(object):
             sourceTime = target.timetuple()
         elif unit.isdigit() and chunk2 in self.ptc.units['days']:
             offsetByUnit = int(unit)
-            if offset == 0 and offsetByUnit == 0:
-                sourceTime = (yr, mth, dy, 17, 0, 0, wd, yd, isdst)
-                ctx.updateAccuracy(ctx.ACU_HALFDAY)
-            elif offset == 2:
-                start = datetime.datetime(yr, mth, dy, hr, mn, sec)
-                target = start + datetime.timedelta(days=offsetByUnit)
-                sourceTime = target.timetuple()
-            else:
-                start = datetime.datetime(yr, mth, dy, startHour,
-                                          startMinute, startSecond)
-                target = start + datetime.timedelta(days=offset * offsetByUnit)
-                sourceTime = target.timetuple()
-            ctx.updateAccuracy(ctx.ACU_DAY)
+            try:
+                if offset == 0 and offsetByUnit == 0:
+                    sourceTime = (yr, mth, dy, 17, 0, 0, wd, yd, isdst)
+                    ctx.updateAccuracy(ctx.ACU_HALFDAY)
+                elif offset == 2:
+                    start = datetime.datetime(yr, mth, dy, hr, mn, sec)
+                    target = start + datetime.timedelta(days=offsetByUnit)
+                    sourceTime = target.timetuple()
+                else:
+                    start = datetime.datetime(yr, mth, dy, startHour,
+                                              startMinute, startSecond)
+                    target = start + datetime.timedelta(days=offset * offsetByUnit)
+                    sourceTime = target.timetuple()
+                ctx.updateAccuracy(ctx.ACU_DAY)
+            except OverflowError:
+                # Out-of-range offsets must degrade like _buildTime, not raise
+                pass
 
         elif unit.isdigit() and chunk2 in self.ptc.units['weeks']:
             offsetByUnit = int(unit)
-            if offset == 0:
-                start = datetime.datetime(yr, mth, dy, 17, 0, 0)
-                target = start + datetime.timedelta(days=(4 - wd))
-                sourceTime = target.timetuple()
-            elif offset == 2:
-                start = datetime.datetime(yr, mth, dy, startHour,
-                                          startMinute, startSecond)
-                target = start + datetime.timedelta(days=7 + offsetByUnit)
-                sourceTime = target.timetuple()
-            else:
-                start = datetime.datetime(yr, mth, dy, startHour,
-                                          startMinute, startSecond)
-                target = start + offset * datetime.timedelta(weeks=1 + offsetByUnit)
-                sourceTime = target.timetuple()
-            ctx.updateAccuracy(ctx.ACU_WEEK)
+            try:
+                if offset == 0:
+                    start = datetime.datetime(yr, mth, dy, 17, 0, 0)
+                    target = start + datetime.timedelta(days=(4 - wd))
+                    sourceTime = target.timetuple()
+                elif offset == 2:
+                    start = datetime.datetime(yr, mth, dy, startHour,
+                                              startMinute, startSecond)
+                    target = start + datetime.timedelta(days=7 + offsetByUnit)
+                    sourceTime = target.timetuple()
+                else:
+                    start = datetime.datetime(yr, mth, dy, startHour,
+                                              startMinute, startSecond)
+                    target = start + offset * datetime.timedelta(weeks=1 + offsetByUnit)
+                    sourceTime = target.timetuple()
+                ctx.updateAccuracy(ctx.ACU_WEEK)
+            except OverflowError:
+                # Out-of-range offsets must degrade like _buildTime, not raise
+                pass
 
         elif unit.isdigit() and chunk2 in self.ptc.units['months']:
             offsetByUnit = int(unit)
