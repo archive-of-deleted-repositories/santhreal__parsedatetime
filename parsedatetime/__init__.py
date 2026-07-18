@@ -491,6 +491,10 @@ class Calendar(object):
 
         s = dateString.lower()
         m = self.ptc.CRE_DATE3.search(s)
+        if m is None:
+            # Return current time if date string does not match
+            return time.localtime()
+
         mth = m.group('mthname')
         mth = self.ptc.MonthOffsets[mth]
         accuracy.append('month')

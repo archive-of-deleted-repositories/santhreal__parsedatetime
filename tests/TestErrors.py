@@ -71,6 +71,19 @@ class test(unittest.TestCase):
         self.assertExpectedResult(
             self.cal.parse('3700000 d', start), (start, pdtContext()))
 
+    def testParseDateTextNonMatching(self):
+        # Non-matching input must degrade to current time, not AttributeError
+        for s in ('30', 'abc', '', 'the 30th'):
+            before = time.mktime(time.localtime())
+            result = self.cal.parseDateText(s)
+            after = time.mktime(time.localtime())
+            ts = time.mktime(result)
+            self.assertTrue(before - 1 <= ts <= after + 1)
+
+        # Genuine long-form dates still parse
+        result = self.cal.parseDateText('May 31st, 2006')
+        self.assertEqual(result[:3], (2006, 5, 31))
+
 
 if __name__ == "__main__":
     unittest.main()
